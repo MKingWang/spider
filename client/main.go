@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	upload.PushData()
+	upload.GetData()
 
 }

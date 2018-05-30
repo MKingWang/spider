@@ -1,17 +1,15 @@
 package upload
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"strings"
 )
-
-type Data struct {
-	spiderinfo spiderInfo
-	client     *http.Client
-}
 
 type spiderInfo struct {
 	ID     int         `json:"id"`
@@ -21,9 +19,7 @@ type spiderInfo struct {
 	Result interface{} `json:"result"`
 }
 
-var spiderData Data
-
-func (this *Data) Push() {
+func pushData(encode []byte) {
 	spinfo := spiderInfo{10, 5, "http://blog.leixin.wang", "192.168.1.5", "abcdddaaabbbccc"}
 
 	var client http.Client
@@ -49,4 +45,39 @@ func (this *Data) Push() {
 	io.Copy(&buf, res.Body)
 
 	fmt.Println(buf.String())
+}
+
+func GetData() {
+
+	var conf map[string]string
+	fd, err := os.Open("./conf/spider.conf")
+	if err != nil {
+		panic(err)
+	}
+	defer fd.Close()
+
+	buf := bufio.NewReader(fd)
+	for {
+		l, _, err := buf.ReadLine()
+		line := string(l)
+
+		if err != nil {
+			if len(line) == 0 {
+				break
+			}
+			panic(err)
+		}
+		if strings.IndexAny(line, "=") == -1 {
+			continue
+		}
+
+		confline := strings.Split(line, "=")
+		conf[confline[0]] = confline[1]
+		fmt.Println(confline[0])
+	}
+
+}
+
+func Run() {
+	fmt.Println("fff")
 }
